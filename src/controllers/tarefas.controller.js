@@ -19,9 +19,13 @@ const tarefasController = {
   },
 
   criar(req, res) {
-    const { texto, prioridade, coluna, usuarioId } = req.body;
+    const { texto, prioridade, coluna } = req.body;
 
-    // if (!texto) return res.status(400).json({ erro: "Texto obrigatório" });
+    const usuarioId = req.usuario.id;
+
+    // if (!texto) {
+    //   return res.status(400).json({ erro: "Texto obrigatório" });
+    // }
 
     // if (prioridade && !PRIORIDADES_VALIDAS.includes(prioridade)) {
     //   return res.status(400).json({
@@ -35,29 +39,33 @@ const tarefasController = {
     //   });
     // }
 
-    if (usuarioId) {
-      const usuarioExiste = usuarioModel.buscar(parseInt(usuarioId));
-      if (!usuarioExiste) {
-        return res.status(400).json({ erro: "Usuário não encontrado" });
-      }
+    const usuarioExiste = usuarioModel.buscar(usuarioId);
 
-      if (coluna === "andamento") {
-        const totalAndamento = tarefaModel.contarPorUsuarioEColuna(
-          parseInt(usuarioId),
-          "andamento",
-        );
-
-        if (totalAndamento >= 2) {
-          return res.status(400).json({
-            erro: "Limite de 2 tarefas em andamento por usuário atingido",
-          });
-        }
-      }
-
-      req.body.usuarioId = parseInt(usuarioId);
+    if (!usuarioExiste) {
+      return res.status(400).json({
+        erro: "Usuário não encontrado",
+      });
     }
 
-    res.status(201).json(tarefaModel.adicionar(req.body));
+    if (coluna === "andamento") {
+      const totalAndamento = tarefaModel.contarPorUsuarioEColuna(
+        usuarioId,
+        "andamento",
+      );
+
+      if (totalAndamento >= 2) {
+        return res.status(400).json({
+          erro: "Limite de 2 tarefas em andamento por usuário atingido",
+        });
+      }
+    }
+
+    const tarefa = tarefaModel.adicionar({
+      ...req.body,
+      usuarioId,
+    });
+
+    res.status(201).json(tarefa);
   },
 
   atualizar(req, res) {

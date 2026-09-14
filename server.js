@@ -3,6 +3,7 @@ require("dotenv").config();
 const logger = require("./src/middlewares/logger");
 const validarContentType = require("./src/middlewares/validarContentType");
 const temporizador = require("./src/middlewares/temporizador");
+const autenticar = require("./src/middlewares/autenticar");
 // const cors = require("./src/middlewares/cors");
 const express = require("express");
 
@@ -30,18 +31,13 @@ app.use(logger);
 app.use(temporizador);
 // app.use(cors);
 
-
-app.use("/auth", authRoutes);
-
+app.use("/auth",  authRoutes);
 // Lista usuarios -----------------------------------------
-app.use("/usuarios", usuariosRoutes);
-
+app.use("/usuarios", autenticar, usuariosRoutes);
 // Lista tarefas e faz todo CRUD --------------------------
-app.use("/tarefas", tarefasRoutes);
-
+app.use("/tarefas", autenticar, tarefasRoutes);
 // Lista projetos e faz todo CRUD --------------------------
-app.use("/projetos", projetosRoutes);
-
+app.use("/projetos", autenticar, projetosRoutes);
 // Rota 404
 app.use((req, res) => {
   res.status(404).json({
