@@ -74,15 +74,20 @@ module.exports = {
     ).length,
 
   adicionar: ({ texto, prioridade, coluna, cidade, usuarioId }) => {
+    const novaColuna = coluna || "afazer";
+
     const nova = {
       id: proximoId++,
       texto,
       prioridade: prioridade || "media",
-      coluna: coluna || "afazer",
+      coluna: novaColuna,
       cidade: cidade || "",
       usuarioId,
-      concluidaEm: novaColuna === "concluido" ? new Date().toISOString() : null,
+      concluidaEm:
+        novaColuna === "concluido" ? new Date().toISOString() : null,
+
     };
+
     tarefas.push(nova);
     return nova;
   },
