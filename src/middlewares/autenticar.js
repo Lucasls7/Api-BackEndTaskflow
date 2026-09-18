@@ -11,7 +11,6 @@ function autenticar(req, res, next) {
   if (!token)
     return res
       .status(401)
-
       .json({ erro: "Formato inválido. Use: Bearer <token>" });
 
   try {
@@ -24,7 +23,6 @@ function autenticar(req, res, next) {
     if (erro.name === "TokenExpiredError")
       return res
         .status(401)
-
         .json({ erro: "Token expirado. Faça login novamente." });
 
     return res.status(401).json({ erro: "Token inválido." });
