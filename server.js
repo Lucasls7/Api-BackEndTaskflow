@@ -19,7 +19,7 @@ const PORTA = process.env.PORTA || 3000;
 // Configuração do CORS aberta para testes
 app.use(
   cors({
-    origin: "*", 
+    origin: process.env.CORS_ORIGIN, 
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
     maxAge: 86400,
