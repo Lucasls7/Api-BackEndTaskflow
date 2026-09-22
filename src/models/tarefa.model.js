@@ -1,7 +1,7 @@
 let tarefas = [
   {
     id: 1,
-    texto: "Estudar Node",
+    texto: "Estudar",
     prioridade: "alta",
     coluna: "andamento",
     cidade: "",
@@ -10,7 +10,7 @@ let tarefas = [
   },
   {
     id: 2,
-    texto: "Criar API",
+    texto: "Criar",
     prioridade: "alta",
     coluna: "andamento",
     cidade: "",
@@ -19,7 +19,7 @@ let tarefas = [
   },
   {
     id: 3,
-    texto: "Testar Postman",
+    texto: "Testar",
     prioridade: "media",
     coluna: "concluido",
     cidade: "",

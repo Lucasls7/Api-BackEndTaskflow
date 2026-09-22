@@ -1,10 +1,5 @@
 let usuarios = [
-  { id: 1, 
-    nome: "admin", 
-    email: "admin@taskflow.com", 
-    senha: "1234"
-   },
-
+  { id: 1, nome: "admin", email: "admin@email.com", senha: "1234" }
 ];
 
 let proximoId = 2;
@@ -30,9 +25,9 @@ module.exports = {
   adicionar: ({ nome, email, senha }) => {
     const novo = {
       id: proximoId++,
-      nome: nome || "felipe",
-      email: email || "admin@taskflow.com",
-      senha: senha || "1223",
+      nome: nome || "lucas",
+      email: email || "admin@email.com",
+      senha: senha || "1234",
     };
     usuarios.push(novo);
     return novo;
