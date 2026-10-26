@@ -1,46 +1,41 @@
-const jwt = require('jsonwebtoken');
-const usuarioModel = require('../models/usuario.model');
+const jwt = require("jsonwebtoken");
+const usuarioModel = require("../models/usuario.model");
 
 const authController = {
-  login(req, res) {
-    const { email, senha } = req.body;
+  async login(req, res) {
+    try {
+      const { email, senha } = req.body;
 
-    // Validação básica
+      if (!email || !senha) {
+        return res.status(400).json({ erro: "Email e senha são obrigatórios" });
+      }
 
-    if (!email || !senha)
-      return res.status(400).json({ erro: "Email e senha são obrigatórios" });
+      const usuario = await usuarioModel.buscarPorEmail(email);
 
-    // 1. Verificar se o usuário existe
+      if (!usuario) {
+        return res.status(401).json({ erro: "Credenciais inválidas" });
+      }
 
-    const usuario = usuarioModel.buscarPorEmail(email);
+      if (usuario.senha !== senha) {
+        return res.status(401).json({ erro: "Credenciais inválidas" });
+      }
 
-    if (!usuario)
-      return res.status(401).json({ erro: "Credenciais inválidas" });
+      const secret = process.env.JWT_SECRET || "chave_secreta_padrao";
+      
+      const token = jwt.sign(
+        { id: usuario.id, nome: usuario.nome },
+        secret,
+        { expiresIn: "8h" }
+      );
 
-    // 2. Verificar a senha
-    // Por enquanto comparação direta — Dia 4 usa hash
-
-    if (usuario.senha !== senha)
-      return res
-        .status(401)
-
-        .json({ erro: "Credenciais inválidas" });
-
-    // 3. Gerar o token JWT
-
-    const token = jwt.sign(
-      { id: usuario.id, nome: usuario.nome },
-      process.env.JWT_SECRET,
-      { expiresIn: "8h" },
-    );
-
-    // 4. Retornar token e dados públicos
-    // Nunca retornar a senha na resposta
-
-    res.json({
-      token,
-      usuario: { id: usuario.id, nome: usuario.nome },
-    });
+      return res.json({
+        token,
+        usuario: { id: usuario.id, nome: usuario.nome },
+      });
+    } catch (error) {
+      console.error("Erro interno no login:", error);
+      return res.status(500).json({ erro: "Erro interno do servidor" });
+    }
   },
 };
 
