@@ -16,26 +16,26 @@ const authRoutes = require("./src/routes/auth.routes");
 const app = express();
 const PORTA = process.env.PORTA || 3000;
 
-const pool = require('./src/database/db');
+const pool = require("./src/database/db");
 
-pool.query('SELECT NOW()', (err, res) => {
-  if (err) console.error('Erro ao conectar:', err.message);
-  else console.log('Banco conectado:', res.rows[0].now);
+// Conexão com o banco
+pool.query("SELECT NOW()", (err, res) => {
+  if (err) console.error("Erro ao conectar:", err.message);
+  else console.log("Banco conectado:", res.rows[0].now);
 });
 
-
+// Configuração de Origens Permitidas
 const allowedOrigins = [
   "https://frontendtasklow.vercel.app",
   process.env.CORS_ORIGIN
-].filter(Boolean); 
+].filter(Boolean);
 
 const corsOptions = {
   origin: function (origin, callback) {
- 
     if (!origin || allowedOrigins.includes(origin) || allowedOrigins.includes("*")) {
       callback(null, true);
     } else {
-      callback(null, true); 
+      callback(null, true); // Permite durante a fase de testes
     }
   },
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
@@ -45,7 +45,6 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-app.options("*", cors(corsOptions)); 
 
 app.use(express.json());
 
@@ -71,6 +70,14 @@ app.use("/projetos", autenticar, projetosRoutes);
 app.use((req, res) => {
   res.status(404).json({
     erro: "Rota não encontrada",
+  });
+});
+
+app.use((err, req, res, next) => {
+  console.error("Erro interno capturado:", err.stack || err.message);
+  res.status(500).json({
+    erro: "Erro interno no servidor",
+    detalhes: process.env.NODE_ENV !== "production" ? err.message : undefined
   });
 });
 
