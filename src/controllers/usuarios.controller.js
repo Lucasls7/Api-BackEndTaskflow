@@ -152,7 +152,6 @@ const usuariosController = {
         return res.status(404).json({ erro: "Usuário não encontrado" });
       }
 
-      // Verifica no banco se existem tarefas associadas ao usuário
       if (tarefaModel.contarPorUsuario) {
         const qtdTarefas = await tarefaModel.contarPorUsuario(id);
         if (qtdTarefas > 0) {
