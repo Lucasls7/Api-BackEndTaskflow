@@ -1,5 +1,4 @@
 function validarContentType(req, res, next) {
-
   const metodosComBody = ["POST", "PUT", "PATCH"];
 
   if (metodosComBody.includes(req.method)) {
