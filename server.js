@@ -16,9 +16,9 @@ const validarContentType = require("./src/middlewares/validarContentType");
 const temporizador = require("./src/middlewares/temporizador");
 const autenticar = require("./src/middlewares/autenticar");
 
-const tarefasRoutes = require("./src/routes/tarefas.Routes");
-const usuariosRoutes = require("./src/routes/usuarios.Routes");
-const projetosRoutes = require("./src/routes/projetos.Routes");
+const tarefasRoutes = require("./src/routes/tarefas.routes");
+const usuariosRoutes = require("./src/routes/usuarios.routes");
+const projetosRoutes = require("./src/routes/projetos.routes");
 const authRoutes = require("./src/routes/auth.routes");
 
 const app = express();
