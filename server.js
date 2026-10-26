@@ -16,6 +16,13 @@ const authRoutes = require("./src/routes/auth.routes");
 const app = express();
 const PORTA = process.env.PORTA || 3000;
 
+const pool = require('./src/database/db');
+
+pool.query('SELECT NOW()', (err, res) => {
+  if (err) console.error('Erro ao conectar:', err.message);
+  else console.log('Banco conectado:', res.rows[0].now);
+});
+
 // Configuração do CORS aberta para testes
 app.use(
   cors({
