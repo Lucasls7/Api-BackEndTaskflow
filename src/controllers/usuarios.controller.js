@@ -1,170 +1,83 @@
-// const usuarioModel = require("../models/usuario.model");
-// const tarefaModel = require("../models/tarefa.model");
-
-// const usuariosController = {
-//   listar(req, res) {
-//     // Repassa os filtros de req.query diretamente para o Model
-//     const resultado = usuarioModel.listar(req.query);
-//     res.json(resultado);
-//   },
-
-//   buscarPorId(req, res) {
-//     const usuario = usuarioModel.buscar(parseInt(req.params.id));
-
-//     if (!usuario) {
-//       return res.status(404).json({ erro: "Usuario não encontrado" });
-//     }
-
-//     res.json(usuario);
-//   },
-
-//   criar(req, res) {
-//     const { email } = req.body;
-
-//     if (email && usuarioModel.buscarPorEmail(email)) {
-//       return res.status(400).json({
-//         erro: "Este email já está cadastrado",
-//       });
-//     }
-
-//     const novoUsuario = usuarioModel.adicionar(req.body);
-//     res.status(201).json(novoUsuario);
-//   },
-
-//   atualizar(req, res) {
-//     const id = parseInt(req.params.id);
-//     const usuarioAtualizado = usuarioModel.atualizar(id, req.body);
-
-//     if (!usuarioAtualizado) {
-//       return res.status(404).json({ erro: "Usuario não encontrado" });
-//     }
-
-//     res.json(usuarioAtualizado);
-//   },
-
-//   remover(req, res) {
-//     const id = parseInt(req.params.id);
-
-//     const usuario = usuarioModel.buscar(id);
-//     if (!usuario) {
-//       return res.status(404).json({ erro: "Usuario não encontrado" });
-//     }
-
-//     // O Model calcula se existem tarefas do usuário
-//     const qtdTarefas = tarefaModel.contarPorUsuario(id);
-
-//     if (qtdTarefas > 0) {
-//       return res.status(400).json({
-//         erro: "Usuário possui tarefas. Remova as tarefas antes.",
-//       });
-//     }
-
-//     usuarioModel.remover(id);
-
-//     res.json({ mensagem: "usuario removido com sucesso", id });
-//   },
-// };
-
-// module.exports = usuariosController;
-
-
-
-
-
-
-
-
-
-
-
-
-
-  const usuarioModel = require("../models/usuario.model");
-const tarefaModel = require("../models/tarefa.model");
+const usuarioModel = require("../models/usuario.model");
 
 const usuariosController = {
-  async listar(req, res) {
+  async listar(req, res, next) {
     try {
-      const resultado = await usuarioModel.listar(req.query);
-      res.json(resultado);
+      const resultado = await usuarioModel.listarUsuarios();
+      return res.status(200).json(resultado);
     } catch (error) {
-      res.status(500).json({ erro: "Erro ao listar usuários" });
+      next(error);
     }
   },
 
-  async buscarPorId(req, res) {
+  async buscarPorId(req, res, next) {
     try {
       const id = parseInt(req.params.id);
-      const usuario = await usuarioModel.buscar(id);
+      const usuario = await usuarioModel.buscarPorId(id);
 
       if (!usuario) {
-        return res.status(404).json({ erro: "Usuário não encontrado" });
+        return res.status(404).json({ erro: { mensagem: "Usuário não encontrado" } });
       }
 
-      res.json(usuario);
+      return res.status(200).json(usuario);
     } catch (error) {
-      res.status(500).json({ erro: "Erro ao buscar usuário" });
+      next(error);
     }
   },
 
-  async criar(req, res) {
+  async criar(req, res, next) {
     try {
-      const { email } = req.body;
+      const { nome, email, senha } = req.body;
 
-      if (email) {
-        const usuarioExistente = await usuarioModel.buscarPorEmail(email);
-        if (usuarioExistente) {
-          return res.status(400).json({
-            erro: "Este email já está cadastrado",
-          });
-        }
+      if (!nome || !email || !senha) {
+        return res.status(400).json({ erro: { mensagem: "Nome, email e senha são obrigatórios" } });
       }
 
-      const novoUsuario = await usuarioModel.adicionar(req.body);
-      res.status(201).json(novoUsuario);
+      const usuarioExistente = await usuarioModel.buscarPorEmail(email);
+      if (usuarioExistente) {
+        return res.status(409).json({ erro: { mensagem: "Este email já está cadastrado" } });
+      }
+
+      const novoUsuario = await usuarioModel.criarUsuario({ nome, email, senha });
+      return res.status(201).json({
+        id: novoUsuario.id,
+        nome: novoUsuario.nome,
+        email: novoUsuario.email,
+      });
     } catch (error) {
-      res.status(500).json({ erro: "Erro ao criar usuário" });
+      next(error);
     }
   },
 
-  async atualizar(req, res) {
+  async atualizar(req, res, next) {
     try {
       const id = parseInt(req.params.id);
+      const usuarioExiste = await usuarioModel.buscarPorId(id);
 
-      const usuarioExiste = await usuarioModel.buscar(id);
       if (!usuarioExiste) {
-        return res.status(404).json({ erro: "Usuário não encontrado" });
+        return res.status(404).json({ erro: { mensagem: "Usuário não encontrado" } });
       }
 
-      const usuarioAtualizado = await usuarioModel.atualizar(id, req.body);
-      res.json(usuarioAtualizado);
+      const usuarioAtualizado = await usuarioModel.atualizarUsuario(id, req.body);
+      return res.status(200).json(usuarioAtualizado);
     } catch (error) {
-      res.status(500).json({ erro: "Erro ao atualizar usuário" });
+      next(error);
     }
   },
 
-  async remover(req, res) {
+  async remover(req, res, next) {
     try {
       const id = parseInt(req.params.id);
+      const usuarioExiste = await usuarioModel.buscarPorId(id);
 
-      const usuario = await usuarioModel.buscar(id);
-      if (!usuario) {
-        return res.status(404).json({ erro: "Usuário não encontrado" });
+      if (!usuarioExiste) {
+        return res.status(404).json({ erro: { mensagem: "Usuário não encontrado" } });
       }
 
-      if (tarefaModel.contarPorUsuario) {
-        const qtdTarefas = await tarefaModel.contarPorUsuario(id);
-        if (qtdTarefas > 0) {
-          return res.status(400).json({
-            erro: "Usuário possui tarefas. Remova as tarefas antes.",
-          });
-        }
-      }
-
-      const removido = await usuarioModel.remover(id);
-      res.json({ mensagem: "Usuário removido com sucesso", usuario: removido });
+      await usuarioModel.removerUsuario(id);
+      return res.status(200).json({ mensagem: "Usuário removido com sucesso", id });
     } catch (error) {
-      res.status(500).json({ erro: "Erro ao remover usuário" });
+      next(error);
     }
   },
 };

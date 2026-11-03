@@ -2,39 +2,34 @@ const jwt = require("jsonwebtoken");
 const usuarioModel = require("../models/usuario.model");
 
 const authController = {
-  async login(req, res) {
+  async login(req, res, next) {
     try {
       const { email, senha } = req.body;
 
       if (!email || !senha) {
-        return res.status(400).json({ erro: "Email e senha são obrigatórios" });
+        return res.status(400).json({ erro: { mensagem: "Email e senha são obrigatórios" } });
       }
 
       const usuario = await usuarioModel.buscarPorEmail(email);
 
-      if (!usuario) {
-        return res.status(401).json({ erro: "Credenciais inválidas" });
-      }
-
-      if (usuario.senha !== senha) {
-        return res.status(401).json({ erro: "Credenciais inválidas" });
+      if (!usuario || usuario.senha !== senha) {
+        return res.status(401).json({ erro: { mensagem: "Credenciais inválidas" } });
       }
 
       const secret = process.env.JWT_SECRET || "chave_secreta_padrao";
-      
+
       const token = jwt.sign(
         { id: usuario.id, nome: usuario.nome },
         secret,
         { expiresIn: "8h" }
       );
 
-      return res.json({
+      return res.status(200).json({
         token,
-        usuario: { id: usuario.id, nome: usuario.nome },
+        usuario: { id: usuario.id, nome: usuario.nome, email: usuario.email },
       });
     } catch (error) {
-      console.error("Erro interno no login:", error);
-      return res.status(500).json({ erro: "Erro interno do servidor" });
+      next(error);
     }
   },
 };
