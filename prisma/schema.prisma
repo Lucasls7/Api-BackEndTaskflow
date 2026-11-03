@@ -1,0 +1,38 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Usuario {
+  id    Int    @id @default(autoincrement())
+  nome  String @default("lucas") @db.VarChar(100)
+  email String @unique @default("admin@email.com") @db.VarChar(150)
+  senha String @default("1234") @db.VarChar(255)
+
+  @@map("usuarios")
+}
+
+model Projeto {
+  id        Int     @id @default(autoincrement())
+  descricao String  @default("teste esse projeto") @db.VarChar(255)
+  ativo     Boolean @default(true)
+
+  @@map("projetos")
+}
+
+model Tarefa {
+  id           Int       @id @default(autoincrement())
+  texto        String
+  prioridade   String    @default("media") @db.VarChar(10)
+  coluna       String    @default("afazer") @db.VarChar(20)
+  cidade       String?   @default("") @db.VarChar(100)
+  usuarioId    Int       @map("usuario_id")
+  concluida_em DateTime? @db.Timestamptz(6)
+
+  @@map("tarefas")
+}
