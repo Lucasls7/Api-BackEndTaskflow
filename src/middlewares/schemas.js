@@ -1,17 +1,14 @@
 const schemas = {
   tarefa: {
     texto: { obrigatorio: true, tipo: "string" },
-    prioridade: {
-      obrigatorio: false,
-      tipo: "string",
-      enum: ["alta", "media", "baixa"],
-    },
     coluna: {
-      obrigatorio: false,
+      obrigatorio: true,
       tipo: "string",
       enum: ["afazer", "andamento", "concluido"],
     },
-    usuarioId: { obrigatorio: false, tipo: "number" },
+    usuario_id: { obrigatorio: true, formato: "inteiro-positivo" },
+    projeto_id: { obrigatorio: true, formato: "inteiro-positivo" },
+    idprioridade: { obrigatorio: true, formato: "inteiro-positivo" },
   },
 
   usuario: {
@@ -23,6 +20,10 @@ const schemas = {
   projeto: {
     nome: { obrigatorio: true, tipo: "string" },
     descricao: { obrigatorio: false, tipo: "string", maxLength: 200 },
+  },
+
+  id: {
+    id: { obrigatorio: true, formato: "inteiro-positivo" },
   },
 };
 
