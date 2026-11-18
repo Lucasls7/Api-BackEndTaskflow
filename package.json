@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "test": "jest",
+    "test": "jest --runInBand",
     "dev": "nodemon server.js",
     "start": "node server.js",
     "postinstall": "prisma generate"
@@ -26,5 +26,8 @@
     "jsonwebtoken": "^9.0.3",
     "pg": "^8.23.1",
     "swagger-ui-express": "^5.0.1"
+  },
+  "jest": {
+    "setupFiles": ["<rootDir>/tests/setup-env.js"]
   }
 }
